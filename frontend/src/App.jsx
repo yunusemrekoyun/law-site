@@ -4,9 +4,15 @@ import HomePage from "./pages/HomePage";
 import ArticlePage from "./pages/ArticlePage";
 import ArticleDetail from "./pages/ArticleDetails";
 
+import AdminLogin from "./admin/AdminLogin";
+import AdminHome from "./admin/AdminHome";
+import RequireAuth from "./admin/RequireAuth";
+import RedirectIfAuthed from "./admin/RedirectIfAuthed";
+
 export default function App() {
   return (
     <Routes>
+      {/* Public site (mevcut layout) */}
       <Route
         path="/"
         element={
@@ -31,6 +37,22 @@ export default function App() {
           </Layout>
         }
       />
+
+      {/* Admin: layout YOK */}
+      <Route
+        path="/admin"
+        element={
+          <RedirectIfAuthed>
+            <AdminLogin />
+          </RedirectIfAuthed>
+        }
+      />
+
+      <Route element={<RequireAuth />}>
+        <Route path="/admin/home" element={<AdminHome />} />
+      </Route>
+
+      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

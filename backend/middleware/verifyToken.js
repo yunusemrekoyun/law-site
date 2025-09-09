@@ -1,5 +1,32 @@
-// middleware/verifyToken.js
-export function verifyToken(req, res, next) {
-  // TODO: JWT kontrolü eklenecek
-  return next();
+import jwt from "jsonwebtoken";
+import { User } from "../models/User.js";
+
+export function verifyToken(requiredRole = null) {
+  return async function (req, res, next) {
+    try {
+      const auth = req.headers.authorization || "";
+      const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+      if (!token) return res.status(401).json({ error: "missing token" });
+
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(payload.sub).lean();
+      if (!user) return res.status(401).json({ error: "invalid token" });
+
+      if (requiredRole && user.role !== requiredRole) {
+        return res.status(403).json({ error: "forbidden" });
+      }
+
+      req.user = {
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role,
+      };
+      next();
+    } catch (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({ error: "token expired" });
+      }
+      return res.status(401).json({ error: "invalid token" });
+    }
+  };
 }
