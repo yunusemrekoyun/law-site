@@ -1,19 +1,23 @@
 // src/components/AuthEventsBridge.jsx
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiEvents, AuthAPI } from "../lib/api";
+import { apiEvents } from "../lib/api";
 
-/**
- * Uygulama genelinde API katmanından yayınlanan olayları dinler.
- * - 401 (token expired/invalid) geldiğinde token'ı temizler ve /admin'e yönlendirir.
- */
 export default function AuthEventsBridge() {
   const navigate = useNavigate();
+  const routed = useRef(false);
 
   useEffect(() => {
     function onUnauthorized() {
-      AuthAPI.logout();
-      navigate("/admin", { replace: true });
+      // Sonsuz döngüyü engelle: sadece yönlendir, logout endpoint'ini çağırma
+      if (!routed.current) {
+        routed.current = true;
+        navigate("/admin", { replace: true });
+        // küçük bir gecikmeden sonra yeniden tetiklemeye izin ver
+        setTimeout(() => {
+          routed.current = false;
+        }, 500);
+      }
     }
     apiEvents.addEventListener("auth:unauthorized", onUnauthorized);
     return () =>

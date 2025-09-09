@@ -2,19 +2,35 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
+const COOKIE_NAME = process.env.AUTH_COOKIE_NAME || "access_token";
+const EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
+const SECURE = (process.env.AUTH_COOKIE_SECURE || "false") === "true";
+const SAME_SITE = process.env.AUTH_COOKIE_SAME_SITE || "Lax";
 
 function signToken(user) {
   return jwt.sign(
     { sub: user._id, role: user.role, email: user.email },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    process.env.JWT_SECRET,
+    { expiresIn: EXPIRES_IN }
   );
 }
 
+function cookieOptions() {
+  // expires: JWT ömrü kadar cookie yaşatmak için maxAge kullanıyoruz
+  // EXPIRES_IN string (1h/30m/7d) → maxAge hesaplaması için basit varsayılan:
+  // 1h ise 3600s; 30m ise 1800s; 7d ise 604800s...
+  // Pratikte: front-end cookie süre yönetimi kritik değil; token expire olunca middleware reddedecek.
+  const oneHourMs = 3600 * 1000;
+  return {
+    httpOnly: true,
+    secure: SECURE, // prod'da true (https şart)
+    sameSite: SAME_SITE, // "Lax" / "Strict" / "None"(Secure true olmalı)
+    path: "/",
+    maxAge: oneHourMs, // basit default; dilersen EXPIRES_IN'i parse edip dinamikleştiririz
+  };
+}
+
 export const authController = {
-  // POST /api/auth/register
   async register(req, res, next) {
     try {
       const { name, email, password } = req.body;
@@ -34,21 +50,23 @@ export const authController = {
       });
 
       const token = signToken(user);
-      res.status(201).json({
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-        token, // Bearer token; süresi JWT_EXPIRES_IN
-      });
+      res
+        .cookie(COOKIE_NAME, token, cookieOptions())
+        .status(201)
+        .json({
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+          // token döndürmüyoruz artık; gerekirse ekleyebiliriz
+        });
     } catch (err) {
       next(err);
     }
   },
 
-  // POST /api/auth/login
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
@@ -62,23 +80,25 @@ export const authController = {
       if (!ok) return res.status(401).json({ error: "invalid credentials" });
 
       const token = signToken(user);
-      res.json({
+      res.cookie(COOKIE_NAME, token, cookieOptions()).json({
         user: {
           id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
         },
-        token,
       });
     } catch (err) {
       next(err);
     }
   },
 
-  // GET /api/auth/me (opsiyonel)
   async me(req, res) {
-    // verifyToken middleware user'ı ekliyor
     res.json({ user: req.user });
+  },
+
+  async logout(req, res) {
+    res.clearCookie(COOKIE_NAME, { path: "/" });
+    res.json({ ok: true });
   },
 };

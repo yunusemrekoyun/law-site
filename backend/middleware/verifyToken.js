@@ -4,8 +4,17 @@ import { User } from "../models/User.js";
 export function verifyToken(requiredRole = null) {
   return async function (req, res, next) {
     try {
-      const auth = req.headers.authorization || "";
-      const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+      const cookieName = process.env.AUTH_COOKIE_NAME || "access_token";
+
+      // 1) Önce cookie'den dene
+      let token = req.cookies?.[cookieName];
+
+      // 2) Authorization header varsa yedek plan (örn. Postman testleri)
+      if (!token) {
+        const auth = req.headers.authorization || "";
+        token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+      }
+
       if (!token) return res.status(401).json({ error: "missing token" });
 
       const payload = jwt.verify(token, process.env.JWT_SECRET);

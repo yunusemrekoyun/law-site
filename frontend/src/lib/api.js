@@ -1,44 +1,29 @@
+/* eslint-disable no-empty */
 // frontend/src/lib/api.js
-// Global API katmanı: tek yerden fetch, token yönetimi, hata standardizasyonu
 
 const BASE = import.meta.env.VITE_API ?? "http://localhost:5000/api";
-const TOKEN_KEY = "auth_token";
 
-// Uygulama genelinde 401 yakalamak için basit event bus
+// 401 yayınlamak için basit event bus
 export const apiEvents = new EventTarget();
 
-// ----- Token helpers -----
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY) || "";
-}
-export function setToken(token) {
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-}
-export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
-}
-
-// ----- Core fetch wrapper -----
-// options: { method, headers, body, withAuth=true, raw=false }
+// ---- Core fetch wrapper ----
+// options: { method, headers, body, raw=false, credentials }
 export async function api(path, options = {}) {
-  const {
-    withAuth = false,
-    raw = false, // raw= true -> JSON parse etme, Response döndür
-    ...rest
-  } = options;
+  const { raw = false, ...rest } = options;
+
+  const isFormData =
+    typeof FormData !== "undefined" && rest.body instanceof FormData;
 
   const headers = {
-    "Content-Type": "application/json",
     ...(rest.headers || {}),
   };
-
-  // yetkili isteklerde Bearer ekle
-  if (withAuth) {
-    const token = getToken();
-    if (token) headers.Authorization = `Bearer ${token}`;
+  // FormData değilse content-type ekle
+  if (!isFormData && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
   }
 
   const res = await fetch(`${BASE}${path}`, {
+    credentials: "include", // HttpOnly cookie şart
     ...rest,
     headers,
   });
@@ -49,13 +34,10 @@ export async function api(path, options = {}) {
   const text = await res.text().catch(() => "");
   try {
     payload = text ? JSON.parse(text) : null;
-  } catch {
-    // text JSON değilse payload null kalır
-  }
+  } catch {}
 
   if (!res.ok) {
     if (res.status === 401) {
-      // Token geçersiz/expired → uygulamaya haber ver
       apiEvents.dispatchEvent(new CustomEvent("auth:unauthorized"));
     }
     const msg =
@@ -72,36 +54,44 @@ export async function api(path, options = {}) {
   return payload;
 }
 
-// ----- Domain APIs -----
+// ---- Domain APIs ----
 
 export const AuthAPI = {
   async register({ name, email, password }) {
-    const data = await api("/auth/register", {
+    // sunucu cookie set eder; front token tutmaz
+    return api("/auth/register", {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
     });
-    // İstersen otomatik login gibi token kaydı:
-    if (data?.token) setToken(data.token);
-    return data;
   },
   async login({ email, password }) {
-    const data = await api("/auth/login", {
+    return api("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
-    if (data?.token) setToken(data.token);
-    return data;
   },
   async me() {
-    return api("/auth/me", { withAuth: true });
+    return api("/auth/me");
   },
-  logout() {
-    clearToken();
+  async logout() {
+    return api("/auth/logout", { method: "POST" });
   },
 };
 
+function toFormData(obj) {
+  const fd = new FormData();
+  Object.entries(obj).forEach(([k, v]) => {
+    if (v === undefined || v === null) return;
+    if (Array.isArray(v)) {
+      fd.append(k, v.join(", "));
+    } else {
+      fd.append(k, v);
+    }
+  });
+  return fd;
+}
+
 export const ArticleAPI = {
-  // Public
   list(params = {}) {
     const qs = new URLSearchParams(params).toString();
     return api(`/articles${qs ? `?${qs}` : ""}`);
@@ -110,25 +100,24 @@ export const ArticleAPI = {
     return api(`/articles/${slug}`);
   },
 
-  // Admin – backend’de korumayı açınca withAuth:true göndereceğiz
-  create(article) {
-    return api("/articles", {
+  // multipart: data (title, slug, summary, content, imageAlt, tags, status...), file (opsiyonel)
+  create(data, file) {
+    const fd = toFormData(data);
+    if (file) fd.append("image", file);
+    return api(`/articles`, {
       method: "POST",
-      withAuth: true,
-      body: JSON.stringify(article),
+      body: fd, // Content-Type set etme; browser belirler
     });
   },
-  update(slug, patch) {
+  update(slug, data, file) {
+    const fd = toFormData(data);
+    if (file) fd.append("image", file);
     return api(`/articles/${slug}`, {
       method: "PUT",
-      withAuth: true,
-      body: JSON.stringify(patch),
+      body: fd,
     });
   },
   remove(slug) {
-    return api(`/articles/${slug}`, {
-      method: "DELETE",
-      withAuth: true,
-    });
+    return api(`/articles/${slug}`, { method: "DELETE" });
   },
 };

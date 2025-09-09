@@ -8,6 +8,7 @@ import AdminLogin from "./admin/AdminLogin";
 import AdminHome from "./admin/AdminHome";
 import RequireAuth from "./admin/RequireAuth";
 import RedirectIfAuthed from "./admin/RedirectIfAuthed";
+import AdminArticlesPage from "./admin/pages/AdminArticlesPage";
 
 export default function App() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
 
       <Route element={<RequireAuth />}>
         <Route path="/admin/home" element={<AdminHome />} />
+        <Route path="/admin/articles" element={<AdminArticlesPage />} />
       </Route>
 
       {/* Catch-all */}
