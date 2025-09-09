@@ -9,53 +9,57 @@ import AdminHome from "./admin/AdminHome";
 import RequireAuth from "./admin/RequireAuth";
 import RedirectIfAuthed from "./admin/RedirectIfAuthed";
 import AdminArticlesPage from "./admin/pages/AdminArticlesPage";
+import ScrollToTop from "./components/ScrollToTop"; // <<< ekledik
 
 export default function App() {
   return (
-    <Routes>
-      {/* Public site (mevcut layout) */}
-      <Route
-        path="/"
-        element={
-          <Layout>
-            <HomePage />
-          </Layout>
-        }
-      />
-      <Route
-        path="/makaleler"
-        element={
-          <Layout>
-            <ArticlePage />
-          </Layout>
-        }
-      />
-      <Route
-        path="/makaleler/:slug"
-        element={
-          <Layout>
-            <ArticleDetail />
-          </Layout>
-        }
-      />
+    <>
+      <ScrollToTop /> {/* <<< buraya çağırdık */}
+      <Routes>
+        {/* Public site (mevcut layout) */}
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <HomePage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/makaleler"
+          element={
+            <Layout>
+              <ArticlePage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/makaleler/:slug"
+          element={
+            <Layout>
+              <ArticleDetail />
+            </Layout>
+          }
+        />
 
-      {/* Admin: layout YOK */}
-      <Route
-        path="/admin"
-        element={
-          <RedirectIfAuthed>
-            <AdminLogin />
-          </RedirectIfAuthed>
-        }
-      />
+        {/* Admin: layout YOK */}
+        <Route
+          path="/admin"
+          element={
+            <RedirectIfAuthed>
+              <AdminLogin />
+            </RedirectIfAuthed>
+          }
+        />
 
-      <Route element={<RequireAuth />}>
-        <Route path="/admin/home" element={<AdminHome />} />
-        <Route path="/admin/articles" element={<AdminArticlesPage />} />
-      </Route>
+        <Route element={<RequireAuth />}>
+          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/articles" element={<AdminArticlesPage />} />
+        </Route>
 
-      {/* Catch-all */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
