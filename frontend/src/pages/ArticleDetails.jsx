@@ -1,19 +1,50 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { getArticleBySlug } from "../data/articles";
+import { ArticleAPI } from "../lib/api";
 
 export default function ArticleDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const article = getArticleBySlug(slug);
+
+  const [article, setArticle] = useState(null);
+  const [busy, setBusy] = useState(true);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
-    // Sayfanın tepesine çık + title güncelle
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    if (article?.title) document.title = `${article.title} | Suphi Veysanoğlu`;
+    let alive = true;
+    (async () => {
+      setBusy(true);
+      setErr("");
+      try {
+        const data = await ArticleAPI.detail(slug); // /api/articles/:slug
+        if (!alive) return;
+        setArticle(data || null);
+        if (data?.title) document.title = `${data.title} | Suphi Veysanoğlu`;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {
+        if (alive) setErr(e.message || "İçerik bulunamadı");
+      } finally {
+        if (alive) setBusy(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
   }, [slug]);
 
-  if (!article) {
+  if (busy) {
+    return (
+      <section className="section-y">
+        <div className="container-x">
+          <div className="rounded-[var(--radius-2xl)] border border-border/60 bg-surface-2/70 p-6">
+            Yükleniyor…
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (err || !article) {
     return (
       <section className="section-y">
         <div className="container-x">
@@ -42,6 +73,10 @@ export default function ArticleDetail() {
     );
   }
 
+  const img =
+    (article.image && (article.image.url || article.image.secure_url)) ||
+    (typeof article.image === "string" ? article.image : "");
+
   return (
     <article className="section-y">
       <div className="container-x">
@@ -65,12 +100,14 @@ export default function ArticleDetail() {
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted">
             <time
-              dateTime={article.date}
+              dateTime={article.publishedAt}
               className="rounded border border-border/60 bg-surface px-2 py-0.5"
             >
-              {new Date(article.date).toLocaleDateString("tr-TR")}
+              {article.publishedAt
+                ? new Date(article.publishedAt).toLocaleDateString("tr-TR")
+                : "Tarih yakında"}
             </time>
-            {article.tags?.length > 0 && (
+            {Array.isArray(article.tags) && article.tags.length > 0 && (
               <ul className="flex flex-wrap gap-2">
                 {article.tags.map((t) => (
                   <li
@@ -86,10 +123,10 @@ export default function ArticleDetail() {
         </header>
 
         {/* Kapak görseli */}
-        {article.image && (
+        {img && (
           <div className="mb-6 overflow-hidden rounded-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/30 shadow-[var(--shadow-soft)]">
             <img
-              src={article.image}
+              src={img}
               alt={article.imageAlt || article.title}
               className="h-auto w-full object-cover"
               loading="eager"
@@ -101,14 +138,13 @@ export default function ArticleDetail() {
         {/* İçerik gövdesi (HTML) */}
         <div
           className="prose prose-invert max-w-none prose-p:my-4 prose-li:my-1 prose-headings:mt-6 prose-a:text-[color:var(--color-accent)]"
-          // Güvenli içerik varsayımı: dummy için static HTML kullanıyoruz
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: article.content || "" }}
         />
 
         {/* Alt aksiyonlar */}
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            to="/articles"
+            to="/makaleler"
             className="rounded-[var(--radius-lg)] border border-border bg-surface px-3 py-1.5 text-sm"
           >
             ← Tüm makaleler

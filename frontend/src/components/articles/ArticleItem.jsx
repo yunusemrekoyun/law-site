@@ -1,32 +1,22 @@
 import { Link } from "react-router-dom";
 
 function normalize(item) {
+  const img =
+    (item.image && (item.image.url || item.image.secure_url)) ||
+    (typeof item.image === "string" ? item.image : "") ||
+    item.cover ||
+    null;
+
   return {
-    id: item.id || item._id || cryptoId(item),
+    id: item._id || item.id,
     title: item.title || item.heading || "Başlık",
     excerpt: item.summary || item.excerpt || "",
-    date: item.date || item.publishedAt || "",
-    tags: item.tags || item.categories || [],
-    slug:
-      item.slug || item.url || slugify(item.title || item.heading || "icerik"),
-    image: item.image || item.cover || null,
-    imageAlt: item.imageAlt || item.alt || "",
+    date: item.publishedAt || item.date || "",
+    tags: Array.isArray(item.tags) ? item.tags : [],
+    slug: item.slug || "",
+    image: img,
+    imageAlt: item.imageAlt || item.alt || item.title || "",
   };
-}
-
-function slugify(s) {
-  return String(s)
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
-function cryptoId(item) {
-  const raw = JSON.stringify(item);
-  let h = 0;
-  for (let i = 0; i < raw.length; i++) h = (h * 31 + raw.charCodeAt(i)) >>> 0;
-  return String(h);
 }
 
 export default function ArticleItem({ item }) {
@@ -43,10 +33,8 @@ export default function ArticleItem({ item }) {
         transition-colors hover:bg-[color:var(--color-surface-2)]/95
       "
     >
-      {/* Görsel alanı */}
       <Link to={`/makaleler/${a.slug}`} className="block">
         <div className="relative aspect-[16/9] w-full">
-          {/* Görsel varsa */}
           {a.image ? (
             <img
               src={a.image}
@@ -56,7 +44,6 @@ export default function ArticleItem({ item }) {
               className="h-full w-full object-cover object-center transition-transform duration-500 ease-out hover:scale-[1.03]"
             />
           ) : (
-            // Placeholder (altın kenarlı koyu yüzey)
             <div className="h-full w-full">
               <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] bg-[color:var(--color-surface)]" />
               <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/35" />
@@ -70,7 +57,6 @@ export default function ArticleItem({ item }) {
             </div>
           )}
 
-          {/* Üst sağ köşe: tarih chip’i */}
           <div className="pointer-events-none absolute right-3 top-3">
             <time
               dateTime={a.date}
@@ -84,9 +70,7 @@ export default function ArticleItem({ item }) {
         </div>
       </Link>
 
-      {/* İçerik */}
       <div className="p-5">
-        {/* Etiketler */}
         {a.tags.length > 0 && (
           <ul className="flex flex-wrap gap-2 text-xs text-muted">
             {a.tags.map((t) => (
@@ -100,21 +84,18 @@ export default function ArticleItem({ item }) {
           </ul>
         )}
 
-        {/* Başlık */}
         <h3 className="mt-3 text-md font-semibold leading-[1.25]">
           <Link to={`/makaleler/${a.slug}`} className="hover:underline">
             {a.title}
           </Link>
         </h3>
 
-        {/* Özet */}
         {a.excerpt && (
           <p className="mt-2 text-sm leading-[1.7] text-[color:var(--color-muted)]">
             {a.excerpt}
           </p>
         )}
 
-        {/* Devam butonu */}
         <div className="mt-4">
           <Link
             to={`/makaleler/${a.slug}`}
