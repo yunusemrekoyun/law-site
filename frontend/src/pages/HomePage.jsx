@@ -68,18 +68,11 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Vaka Öne Çıkanları */}
-      <div id="vaka">
-        <Highlights />
-      </div>
 
       {/* Çalışma Süreci */}
       <WorkingProcess />
 
-      {/* Referanslar */}
-      <div id="referanslar">
-        <Credentials />
-      </div>
+   
 
       {/* SSS */}
       <FAQ />
