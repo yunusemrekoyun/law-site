@@ -1,4 +1,5 @@
 // Footer.jsx
+import { IconPhone, IconMail, IconMapPin } from "@tabler/icons-react";
 export default function Footer() {
   return (
     <footer className="mt-16 border-t border-border/60 bg-surface">
@@ -34,7 +35,7 @@ export default function Footer() {
             </div>
 
             <p className="max-w-md text-[13.5px] leading-[1.6] text-muted">
-              İstanbul merkezli, bireysel ve kurumsal müvekkillere stratejik ve
+              Mersin merkezli, bireysel ve kurumsal müvekkillere stratejik ve
               sonuç odaklı hukuki danışmanlık.
             </p>
           </div>
@@ -45,22 +46,18 @@ export default function Footer() {
               Bağlantılar
             </div>
             <ul className="mt-3 space-y-1.5 text-[14.5px] text-foreground/90">
-              {[
-                "Hizmetler",
-                "Hakkımda",
-                "Vaka Öne Çıkanları",
-                "Referanslar",
-                "İletişim",
-              ].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="transition-colors hover:text-foreground"
-                  >
-                    {item}
-                  </a>
-                </li>
-              ))}
+              {["Çalışma Alanlarımız", "Hakkımda", "Makaleler", "İletişim"].map(
+                (item) => (
+                  <li key={item}>
+                    <a
+                      href="#"
+                      className="transition-colors hover:text-foreground"
+                    >
+                      {item}
+                    </a>
+                  </li>
+                )
+              )}
             </ul>
           </nav>
 
@@ -70,9 +67,19 @@ export default function Footer() {
               İletişim
             </div>
             <ul className="mt-3 space-y-1.5 text-[14.5px] text-foreground/90">
-              <li>T: +90 (555) 111 22 33</li>
-              <li>E: info@veysanoglu.av.tr</li>
-              <li>Nispetiye Cd., Beşiktaş / İstanbul</li>
+              <li className="flex items-center gap-2">
+                <IconPhone className="h-4 w-4 text-accent" />
+                +90 (536) 777 95 45
+              </li>
+              <li className="flex items-center gap-2">
+                <IconMail className="h-4 w-4 text-accent" />
+                av.suphiveysanoglu@hotmail.com
+              </li>
+              <li className="flex items-center gap-2">
+                <IconMapPin className="h-4 w-4 text-accent" />
+                İhsaniye Mahallesi Bahçeler Cad. Ofis Royal İş Merkezi No:22
+                K:1/11 Akdeniz/MERSİN
+              </li>
             </ul>
           </div>
         </div>

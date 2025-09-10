@@ -14,11 +14,9 @@ export default function Header() {
   };
 
   const menu = [
-    { label: "Hizmetler", to: "/#hizmetler" },
+    { label: "Çalışma Alanlarımız", to: "/#hizmetler" },
     { label: "Hakkımda", to: "/#hakkimda" },
     { label: "Makaleler", to: "/makaleler" },
-    { label: "Vaka Öne Çıkanları", to: "/#vaka" },
-    { label: "Referanslar", to: "/#referanslar" },
     { label: "İletişim", to: "/#iletisim" },
   ];
 

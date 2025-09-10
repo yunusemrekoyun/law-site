@@ -82,6 +82,7 @@ const HomePage = () => {
         <Contact />
       </div>
       <ContactForm />
+    
     </>
   );
 };
