@@ -7,11 +7,23 @@ import { cloudinaryUpload } from "../middleware/cloudinaryUpload.js";
 
 const r = Router();
 
-// Public
+/**
+ * PUBLIC
+ * - /api/decisions/keywords/suggest  → yazdıkça keyword önerileri (prefix)
+ * - /api/decisions                    → liste (q: geniş arama, kw: sadece keywords prefix)
+ * - /api/decisions/:slug              → detay
+ */
+
+// NOTE: ÖNCE özel route (slug ile çakışmasın)
+r.get("/keywords/suggest", decisionController.keywordSuggest);
+
+// Public list & detail
 r.get("/", decisionController.list);
 r.get("/:slug", decisionController.detail);
 
-// Admin (multipart + Cloudinary)
+/**
+ * ADMIN (multipart + Cloudinary)
+ */
 r.post(
   "/",
   verifyToken("admin"),

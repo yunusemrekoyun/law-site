@@ -3,6 +3,15 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { DecisionAPI } from "../lib/api";
 
+// NOTE: Ayrı dosya olmadan görsel URL çözümleyici:
+function resolveUrl(url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "");
+  const path = String(url).replace(/^\/+/, "");
+  return base ? `${base}/${path}` : `/${path}`;
+}
+
 export default function DecisionDetail() {
   const { slug } = useParams();
   const nav = useNavigate();
@@ -42,6 +51,11 @@ export default function DecisionDetail() {
       </div>
     );
 
+  // NOTE: Kapak görselini güvenle çöz
+  const coverSrc = resolveUrl(
+    decision?.image?.url || decision?.image || decision?.imageUrl || decision?.cover
+  );
+
   return (
     <article className="section-y">
       <div className="container-x">
@@ -63,24 +77,31 @@ export default function DecisionDetail() {
             {decision.title}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            {decision.daire} • Esas {decision.esasNo} • Karar {decision.kararNo}{" "}
-            • {new Date(decision.date).toLocaleDateString("tr-TR")}
+            {decision.daire} • Esas {decision.esasNo} • Karar {decision.kararNo} •{" "}
+            {decision.date ? new Date(decision.date).toLocaleDateString("tr-TR") : ""}
           </p>
         </header>
 
         {/* Kapak görseli (varsa) */}
-        {decision.image?.url && (
-          <div className="mb-6 overflow-hidden rounded-[var(--radius-2xl)] shadow">
+        {coverSrc && (
+          <div className="mb-6 overflow-hidden rounded-[var(--radius-2xl)] shadow bg-muted/10">
             <img
-              src={decision.image.url}
+              src={coverSrc}
               alt={decision.imageAlt || decision.title}
+              loading="eager"
+              decoding="async"
+              className="w-full h-auto max-h-[70vh] object-contain"
             />
           </div>
         )}
 
-        {/* İçerik */}
+        {/* İçerik (HTML içindeki img'ler de taşmasın) */}
         <div
-          className="prose prose-invert max-w-none"
+          className="
+            prose prose-invert max-w-none
+            prose-img:my-4 prose-img:rounded-xl prose-img:w-full prose-img:h-auto
+            prose-img:max-h-[70vh] prose-img:object-contain
+          "
           dangerouslySetInnerHTML={{ __html: decision.content || "" }}
         />
 

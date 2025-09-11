@@ -15,30 +15,90 @@ function normCsv(input) {
     .filter(Boolean);
 }
 
+// Güvenli regex için kaçış
+function escapeRegex(s = "") {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export const decisionController = {
-  // Public list
+  /**
+   * GET /api/decisions/keywords/suggest?q=ce&limit=8
+   * - Sadece keywords alanında **prefix** eşleşme
+   * - keyword + count + lastDate döner
+   */
+  async keywordSuggest(req, res, next) {
+    try {
+      const raw = (req.query.q || "").toString().trim();
+      const limit = Math.min(parseInt(req.query.limit || "8", 10), 20);
+      if (!raw) return res.json([]);
+
+      const rx = new RegExp("^" + escapeRegex(raw), "i");
+
+      const pipeline = [
+        { $match: { status: "published", keywords: { $exists: true, $ne: [] } } },
+        { $unwind: "$keywords" },
+        { $match: { keywords: rx } }, // prefix
+        {
+          $group: {
+            _id: { $toLower: "$keywords" }, // normalize
+            keyword: { $first: "$keywords" },
+            count: { $sum: 1 },
+            lastDate: { $max: "$date" },
+          },
+        },
+        { $sort: { count: -1, lastDate: -1, keyword: 1 } },
+        { $limit: limit },
+        { $project: { _id: 0, keyword: 1, count: 1, lastDate: 1 } },
+      ];
+
+      const out = await Decision.aggregate(pipeline);
+      return res.json(out);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * GET /api/decisions?q=...&kw=...&tag=...
+   * - q  : geniş arama (title/summary/keywords içinde "contains")
+   * - kw : sadece keywords’te **prefix** (başlangıç) arama
+   * - tag: exact tag eşleşmesi
+   */
   async list(req, res, next) {
     try {
-      const { q, tag } = req.query;
+      const { q, kw, tag } = req.query;
+
       const filter = { status: "published" };
 
       if (q) {
+        const rx = new RegExp(escapeRegex(q), "i"); // contains
         filter.$or = [
-          { title: new RegExp(q, "i") },
-          { summary: new RegExp(q, "i") },
-          { keywords: new RegExp(q, "i") },
+          { title: rx },
+          { summary: rx },
+          { keywords: rx },
         ];
       }
+
+      if (kw) {
+        const rxKw = new RegExp("^" + escapeRegex(kw), "i"); // prefix
+        // q da varsa, AND etkisi yaratmak için ayrı field altında birleştiriyoruz
+        filter.keywords = filter.keywords || rxKw;
+        if (Array.isArray(filter.$or)) {
+          // $or varsa AND için $and ile birleştirelim
+          const base = { $or: filter.$or };
+          delete filter.$or;
+          Object.assign(filter, { $and: [base, { keywords: rxKw }] });
+        }
+      }
+
       if (tag) filter.tags = tag;
 
       const items = await Decision.find(filter)
         .sort({ date: -1, createdAt: -1 })
-        .select(
-          "title slug date chamber summary image imageAlt tags caseNo decisionNo"
-        )
+        .select("title slug date chamber summary image imageAlt tags caseNo decisionNo keywords")
         .lean();
 
-      res.json(items);
+      return res.json(items);
     } catch (err) {
       next(err);
     }
@@ -50,7 +110,7 @@ export const decisionController = {
       const { slug } = req.params;
       const doc = await Decision.findOne({ slug, status: "published" }).lean();
       if (!doc) return res.status(404).json({ error: "Not Found" });
-      res.json(doc);
+      return res.json(doc);
     } catch (err) {
       next(err);
     }
@@ -63,19 +123,19 @@ export const decisionController = {
       const doc = await Decision.create({
         title: b.title,
         slug: b.slug,
-        caseNo: b.caseNo, // Esas No
-        decisionNo: b.decisionNo, // Karar No
-        date: b.date, // ISO tarih
-        chamber: b.chamber, // Daire
+        caseNo: b.caseNo,
+        decisionNo: b.decisionNo,
+        date: b.date,
+        chamber: b.chamber,
         summary: b.summary,
-        content: b.content, // HTML/Markdown
+        content: b.content,
         image: req.cloudinaryFile ? { ...req.cloudinaryFile } : null,
         imageAlt: b.imageAlt,
         keywords: normCsv(b.keywords),
         tags: normCsv(b.tags),
         status: b.status || "published",
       });
-      res.status(201).json(doc);
+      return res.status(201).json(doc);
     } catch (err) {
       next(err);
     }
@@ -112,12 +172,13 @@ export const decisionController = {
 
       if (typeof b.keywords !== "undefined")
         found.keywords = normCsv(b.keywords);
-      if (typeof b.tags !== "undefined") found.tags = normCsv(b.tags);
+      if (typeof b.tags !== "undefined")
+        found.tags = normCsv(b.tags);
 
       found.status = b.status ?? found.status;
 
       const updated = await found.save();
-      res.json(updated);
+      return res.json(updated);
     } catch (err) {
       next(err);
     }
@@ -134,7 +195,7 @@ export const decisionController = {
         await destroyAsset(deleted.image.publicId);
       }
 
-      res.json({ ok: true });
+      return res.json({ ok: true });
     } catch (err) {
       next(err);
     }

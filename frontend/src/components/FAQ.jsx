@@ -21,7 +21,7 @@ const QA = [
 ];
 
 export default function FAQ() {
-  const [open, setOpen] = useState(0); // ilk soru açık
+  const [open, setOpen] = useState(0); // ilk soru açık kalsın istiyorsan 0; kapalı başlasın istersen -1 yap
   const sectionId = useId();
 
   const toggle = (i) => setOpen((curr) => (curr === i ? -1 : i));
@@ -64,8 +64,9 @@ export default function FAQ() {
                     aria-controls={panelId}
                     className={[
                       "flex w-full items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left",
-                      i === 0 ? "bg-foreground/[0.05]" : "bg-transparent",
-                      "hover:bg-foreground/[0.045] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+                      // DÜZELTME: i===0 yerine isOpen — açık olan satır boyalı, ilk satır sabit yanık değil
+                      isOpen ? "bg-foreground/[0.05]" : "bg-transparent",
+                      "hover:bg-foreground/[0.045] transition-colors motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
                     ].join(" ")}
                   >
                     <span className="text-[15.5px] sm:text-[16px] font-semibold text-foreground/95">
@@ -76,7 +77,7 @@ export default function FAQ() {
                     <svg
                       viewBox="0 0 24 24"
                       className={[
-                        "h-4 w-4 text-foreground/70 transition-transform duration-200",
+                        "h-4 w-4 text-foreground/70 transition-transform duration-200 motion-reduce:transition-none",
                         isOpen ? "rotate-180" : "rotate-0",
                       ].join(" ")}
                       fill="none"
@@ -95,8 +96,9 @@ export default function FAQ() {
                     id={panelId}
                     role="region"
                     aria-labelledby={btnId}
+                    aria-hidden={!isOpen} // a11y: kapalıyken screen reader'a gizle
                     className={[
-                      "grid transition-[grid-template-rows] duration-200 ease-out",
+                      "grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none",
                       isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
                     ].join(" ")}
                   >

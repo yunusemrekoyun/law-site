@@ -1,3 +1,4 @@
+// src/components/articles/Articles.jsx
 import { useEffect, useMemo, useState } from "react";
 import { ArticleAPI } from "../../lib/api";
 import ArticleItem from "./ArticleItem";
@@ -57,7 +58,8 @@ export default function Articles() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    // DecisionPage’in grid’i ile aynı: 1 → 2 → 3 sütun, benzer gap
+    <div className="grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {sorted.map((item) => (
         <ArticleItem key={item._id || item.slug} item={item} />
       ))}

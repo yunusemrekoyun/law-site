@@ -1,3 +1,4 @@
+// src/pages/ArticlePage.jsx
 import Articles from "../components/articles/Articles";
 
 export default function ArticlePage() {

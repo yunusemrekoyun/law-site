@@ -1,7 +1,17 @@
+// src/components/articles/ArticleItem.jsx
 import { Link } from "react-router-dom";
 
+// Göreli görsel URL'lerini tam yola çevirir (ayrı dosya yok)
+function resolveUrl(url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "");
+  const path = String(url).replace(/^\/+/, "");
+  return base ? `${base}/${path}` : `/${path}`;
+}
+
 function normalize(item) {
-  const img =
+  const rawImg =
     (item.image && (item.image.url || item.image.secure_url)) ||
     (typeof item.image === "string" ? item.image : "") ||
     item.cover ||
@@ -14,7 +24,7 @@ function normalize(item) {
     date: item.publishedAt || item.date || "",
     tags: Array.isArray(item.tags) ? item.tags : [],
     slug: item.slug || "",
-    image: img,
+    image: resolveUrl(rawImg),
     imageAlt: item.imageAlt || item.alt || item.title || "",
   };
 }
@@ -28,35 +38,26 @@ export default function ArticleItem({ item }) {
         overflow-hidden
         rounded-[var(--radius-2xl)]
         border border-border/60
-        bg-[color:var(--color-surface-2)]/80
-        shadow-[var(--shadow-soft)]
-        transition-colors hover:bg-[color:var(--color-surface-2)]/95
+        bg-surface
+        shadow hover:shadow-lg transition-shadow
       "
     >
       <Link to={`/makaleler/${a.slug}`} className="block">
-        <div className="relative aspect-[16/9] w-full">
+        {/* KAPAK: 16:9 sabit kutu, zoom/kırpma yok, ortalı (DecisionItem ile aynı) */}
+        <div className="relative aspect-[16/9] w-full bg-muted/10 flex items-center justify-center">
           {a.image ? (
             <img
               src={a.image}
               alt={a.imageAlt || a.title}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover object-center transition-transform duration-500 ease-out hover:scale-[1.03]"
+              className="max-h-full max-w-full object-contain"
             />
           ) : (
-            <div className="h-full w-full">
-              <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] bg-[color:var(--color-surface)]" />
-              <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/35" />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(60% 60% at 70% 30%, rgba(228,189,99,.18) 0%, rgba(228,189,99,0) 70%)",
-                }}
-              />
-            </div>
+            <div className="h-full w-full" />
           )}
 
+          {/* Tarih etiketi (opsiyonel overlay; boyutu küçük tutuyoruz) */}
           <div className="pointer-events-none absolute right-3 top-3">
             <time
               dateTime={a.date}
@@ -70,9 +71,10 @@ export default function ArticleItem({ item }) {
         </div>
       </Link>
 
-      <div className="p-5">
+      {/* İÇ GÖVDE: DecisionItem ile ölçü eşleşmesi */}
+      <div className="p-4">
         {a.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2 text-xs text-muted">
+          <ul className="flex flex-wrap gap-2 text-[11px] md:text-xs text-muted">
             {a.tags.map((t) => (
               <li
                 key={t}
@@ -84,37 +86,27 @@ export default function ArticleItem({ item }) {
           </ul>
         )}
 
-        <h3 className="mt-3 text-md font-semibold leading-[1.25]">
+        <h3 className="mt-2 text-base md:text-lg font-semibold leading-[1.25]">
           <Link to={`/makaleler/${a.slug}`} className="hover:underline">
             {a.title}
           </Link>
         </h3>
 
         {a.excerpt && (
-          <p className="mt-2 text-sm leading-[1.7] text-[color:var(--color-muted)]">
+          <p className="mt-2 line-clamp-2 md:line-clamp-3 text-xs md:text-sm leading-[1.7] text-[color:var(--color-muted)]">
             {a.excerpt}
           </p>
         )}
 
-        <div className="mt-4">
+        <div className="mt-3 flex justify-between items-center">
+          <span className="text-[11px] md:text-xs text-foreground/70">
+            {/* makale için ek meta istersen buraya gelebilir */}
+          </span>
           <Link
             to={`/makaleler/${a.slug}`}
-            className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] border border-border bg-surface px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface-2"
+            className="text-sm font-medium text-[color:var(--color-accent)] hover:underline"
           >
-            Devamını oku
-            <svg
-              viewBox="0 0 24 24"
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-              <path d="M13 5l7 7-7 7" />
-            </svg>
+            Devam →
           </Link>
         </div>
       </div>

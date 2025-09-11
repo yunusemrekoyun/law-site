@@ -1,6 +1,16 @@
+// src/pages/ArticleDetail.jsx
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArticleAPI } from "../lib/api";
+
+// NOTE: Göreli URL -> tam URL
+function resolveUrl(url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  const base = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "");
+  const path = String(url).replace(/^\/+/, "");
+  return base ? `${base}/${path}` : `/${path}`;
+}
 
 export default function ArticleDetail() {
   const { slug } = useParams();
@@ -73,9 +83,10 @@ export default function ArticleDetail() {
     );
   }
 
-  const img =
+  const rawImg =
     (article.image && (article.image.url || article.image.secure_url)) ||
     (typeof article.image === "string" ? article.image : "");
+  const img = resolveUrl(rawImg); // NOTE: URL normalize
 
   return (
     <article className="section-y">
@@ -122,16 +133,18 @@ export default function ArticleDetail() {
           </div>
         </header>
 
-        {/* Kapak görseli */}
+        {/* Kapak görseli — kartla aynı görünüm (16:9, zoom yok, ortalı) */}
         {img && (
           <div className="mb-6 overflow-hidden rounded-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/30 shadow-[var(--shadow-soft)]">
-            <img
-              src={img}
-              alt={article.imageAlt || article.title}
-              className="h-auto w-full object-cover"
-              loading="eager"
-              decoding="async"
-            />
+            <div className="aspect-[16/9] w-full bg-[color:var(--color-surface)]/40 flex items-center justify-center">
+              <img
+                src={img}
+                alt={article.imageAlt || article.title}
+                className="max-h-full max-w-full object-contain"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
           </div>
         )}
 
