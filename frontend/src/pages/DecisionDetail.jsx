@@ -53,7 +53,10 @@ export default function DecisionDetail() {
 
   // NOTE: Kapak görselini güvenle çöz
   const coverSrc = resolveUrl(
-    decision?.image?.url || decision?.image || decision?.imageUrl || decision?.cover
+    decision?.image?.url ||
+      decision?.image ||
+      decision?.imageUrl ||
+      decision?.cover
   );
 
   return (
@@ -77,21 +80,28 @@ export default function DecisionDetail() {
             {decision.title}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            {decision.daire} • Esas {decision.esasNo} • Karar {decision.kararNo} •{" "}
-            {decision.date ? new Date(decision.date).toLocaleDateString("tr-TR") : ""}
+            {decision.daire} • Esas {decision.esasNo} • Karar {decision.kararNo}{" "}
+            •{" "}
+            {decision.date
+              ? new Date(decision.date).toLocaleDateString("tr-TR")
+              : ""}
           </p>
         </header>
 
-        {/* Kapak görseli (varsa) */}
+        {/* Kapak görseli — Makale Detay ile aynı görünüm (%75, 16:9, altın/accent ring) */}
         {coverSrc && (
-          <div className="mb-6 overflow-hidden rounded-[var(--radius-2xl)] shadow bg-muted/10">
-            <img
-              src={coverSrc}
-              alt={decision.imageAlt || decision.title}
-              loading="eager"
-              decoding="async"
-              className="w-full h-auto max-h-[70vh] object-contain"
-            />
+          <div className="mb-6 flex justify-center">
+            <div className="w-3/4 overflow-hidden rounded-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/30 shadow-[var(--shadow-soft)]">
+              <div className="aspect-[16/9] w-full bg-[color:var(--color-surface)]/40 flex items-center justify-center">
+                <img
+                  src={coverSrc}
+                  alt={decision.imageAlt || decision.title}
+                  loading="eager"
+                  decoding="async"
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+            </div>
           </div>
         )}
 
@@ -107,8 +117,11 @@ export default function DecisionDetail() {
 
         {/* Alt aksiyon */}
         <div className="mt-8 flex gap-4">
-          <Link to="/kararlar" className="text-sm underline">
-            ← Tüm kararlar
+          <Link
+            to="/kararlar"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/5 px-3 py-1.5 text-sm font-medium text-white hover:bg-white hover:text-foreground transition"
+          >
+            ← Tüm Kararlar
           </Link>
         </div>
       </div>

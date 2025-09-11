@@ -134,16 +134,19 @@ export default function ArticleDetail() {
         </header>
 
         {/* Kapak görseli — kartla aynı görünüm (16:9, zoom yok, ortalı) */}
+        {/* Kapak görseli — %25 küçültülmüş */}
         {img && (
-          <div className="mb-6 overflow-hidden rounded-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/30 shadow-[var(--shadow-soft)]">
-            <div className="aspect-[16/9] w-full bg-[color:var(--color-surface)]/40 flex items-center justify-center">
-              <img
-                src={img}
-                alt={article.imageAlt || article.title}
-                className="max-h-full max-w-full object-contain"
-                loading="eager"
-                decoding="async"
-              />
+          <div className="mb-6 flex justify-center">
+            <div className="w-3/4 overflow-hidden rounded-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/30 shadow-[var(--shadow-soft)]">
+              <div className="aspect-[16/9] bg-[color:var(--color-surface)]/40 flex items-center justify-center">
+                <img
+                  src={img}
+                  alt={article.imageAlt || article.title}
+                  className="max-h-full max-w-full object-contain"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -162,13 +165,6 @@ export default function ArticleDetail() {
           >
             ← Tüm makaleler
           </Link>
-          <a
-            href="#contact"
-            className="rounded-[var(--radius-lg)] px-3 py-1.5 text-sm font-semibold text-black shadow-[var(--shadow-soft)]"
-            style={{ backgroundImage: "var(--gradient-accent)" }}
-          >
-            Danışmanlık alın
-          </a>
         </div>
       </div>
     </article>
