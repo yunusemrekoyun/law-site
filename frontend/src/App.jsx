@@ -1,22 +1,29 @@
+// src/App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
+import ScrollToTop from "./components/ScrollToTop";
+
+// Public pages
 import HomePage from "./pages/HomePage";
 import ArticlePage from "./pages/ArticlePage";
 import ArticleDetail from "./pages/ArticleDetails";
+import DecisionPage from "./pages/DecisionPage";
+import DecisionDetail from "./pages/DecisionDetail";
 
+// Admin pages
 import AdminLogin from "./admin/AdminLogin";
 import AdminHome from "./admin/AdminHome";
 import RequireAuth from "./admin/RequireAuth";
 import RedirectIfAuthed from "./admin/RedirectIfAuthed";
 import AdminArticlesPage from "./admin/pages/AdminArticlesPage";
-import ScrollToTop from "./components/ScrollToTop"; // <<< ekledik
+import AdminDecisionsPage from "./admin/pages/AdminDecisionsPage";
 
 export default function App() {
   return (
     <>
-      <ScrollToTop /> {/* <<< buraya çağırdık */}
+      <ScrollToTop />
       <Routes>
-        {/* Public site (mevcut layout) */}
+        {/* Public site */}
         <Route
           path="/"
           element={
@@ -25,6 +32,8 @@ export default function App() {
             </Layout>
           }
         />
+
+        {/* Makaleler */}
         <Route
           path="/makaleler"
           element={
@@ -42,7 +51,25 @@ export default function App() {
           }
         />
 
-        {/* Admin: layout YOK */}
+        {/* Yargıtay Kararları */}
+        <Route
+          path="/kararlar"
+          element={
+            <Layout>
+              <DecisionPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/kararlar/:slug"
+          element={
+            <Layout>
+              <DecisionDetail />
+            </Layout>
+          }
+        />
+
+        {/* Admin (layout yok) */}
         <Route
           path="/admin"
           element={
@@ -55,6 +82,7 @@ export default function App() {
         <Route element={<RequireAuth />}>
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/admin/articles" element={<AdminArticlesPage />} />
+          <Route path="/admin/decisions" element={<AdminDecisionsPage />} />
         </Route>
 
         {/* Catch-all */}

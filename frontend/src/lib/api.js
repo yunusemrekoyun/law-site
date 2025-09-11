@@ -121,3 +121,35 @@ export const ArticleAPI = {
     return api(`/articles/${slug}`, { method: "DELETE" });
   },
 };
+
+export const DecisionAPI = {
+  list(params = {}) {
+    const qs = new URLSearchParams(params).toString();
+    return api(`/decisions${qs ? `?${qs}` : ""}`);
+  },
+  detail(slug) {
+    return api(`/decisions/${slug}`);
+  },
+  create(data, file) {
+    const fd = toFormData(data);
+    if (file) fd.append("image", file);
+    return api(`/decisions`, { method: "POST", body: fd });
+  },
+  update(slug, data, file) {
+    const fd = toFormData(data);
+    if (file) fd.append("image", file);
+    return api(`/decisions/${slug}`, { method: "PUT", body: fd });
+  },
+  remove(slug) {
+    return api(`/decisions/${slug}`, { method: "DELETE" });
+  },
+};
+
+export const ContactAPI = {
+  async send({ name, email, phone, subject, message }) {
+    return api("/contact", {
+      method: "POST",
+      body: JSON.stringify({ name, email, phone, subject, message }),
+    });
+  },
+};

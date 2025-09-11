@@ -1,30 +1,87 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
 
 export default function Header() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   const nav = useNavigate();
+  const [open, setOpen] = useState(false);
 
-  const handleLogoClick = (e) => {
-    e.preventDefault();
-    if (pathname === "/") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      nav("/");
-    }
-  };
+  const menu = useMemo(
+    () => [
+      { label: "Çalışma Alanlarımız", to: "/#hizmetler", kind: "hash" },
+      { label: "Hakkımda", to: "/#hakkimda", kind: "hash" },
+      { label: "Makaleler", to: "/makaleler", kind: "route" },
+      { label: "Yargıtay Kararları", to: "/kararlar", kind: "route" },
+      { label: "İletişim", to: "/#iletisim", kind: "hash" },
+    ],
+    []
+  );
 
-  const menu = [
-    { label: "Çalışma Alanlarımız", to: "/#hizmetler" },
-    { label: "Hakkımda", to: "/#hakkimda" },
-    { label: "Makaleler", to: "/makaleler" },
-    { label: "İletişim", to: "/#iletisim" },
-  ];
+  const handleLogoClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (pathname === "/") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        nav("/");
+      }
+      setOpen(false);
+    },
+    [pathname, nav]
+  );
+
+  // Hash link tıklaması: farklı sayfadaysak önce "/"'a git, sonra section'a kaydır
+  const handleMenuClick = useCallback(
+    async (item) => {
+      if (item.kind === "route") {
+        nav(item.to);
+        setOpen(false);
+        return;
+      }
+
+      // kind === "hash"
+      // eslint-disable-next-line no-unused-vars
+      const [path, idRaw] = item.to.split("#"); // "/#hizmetler"
+      const id = idRaw || "";
+      if (pathname !== "/") {
+        // home'a git, kısa bir raf sonrası ilgili id'ye kaydır
+        nav("/", { replace: false });
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 50);
+        });
+      } else {
+        // zaten home'dayız → direkt kaydır
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      setOpen(false);
+    },
+    [nav, pathname]
+  );
+
+  // aktif link (route için pathname, hash için hash/id)
+  const isActive = useCallback(
+    (item) => {
+      if (item.kind === "route") {
+        return pathname.startsWith(item.to);
+      }
+      // hash’lerde sadece anasayfadaysak vurgula
+      if (pathname !== "/") return false;
+      return hash === item.to.replace("/", ""); // "/#hizmetler" -> "#hizmetler"
+    },
+    [pathname, hash]
+  );
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-surface/90 backdrop-blur supports-[backdrop-filter]:bg-surface/75">
-      {/* Büyük header: h-16 ve geniş logo */}
+    <header
+      className="sticky top-0 z-50 border-b border-border/60 bg-surface/90 backdrop-blur supports-[backdrop-filter]:bg-surface/75"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
       <div className="container-x flex h-16 items-center justify-between">
-        {/* Sol: Logo / İsim (büyük boy) */}
+        {/* Sol: Logo */}
         <Link
           to="/"
           onClick={handleLogoClick}
@@ -46,37 +103,51 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Orta: Menü — daha canlı yazı + altın underline hover */}
-        <nav className="hidden items-center gap-6 md:flex">
+        {/* Orta: Desktop Menü */}
+        <nav
+          className="hidden items-center gap-2 md:flex"
+          role="navigation"
+          aria-label="Ana menü"
+        >
           {menu.map((item) => (
-            <Link
+            <button
               key={item.label}
-              to={item.to}
-              className="
-                relative text-sm font-medium text-foreground
-                transition-all duration-200 ease-out
-                hover:text-foreground
-                after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0
-                after:bg-[color:var(--color-accent)] after:transition-all after:duration-200
-                hover:after:w-full
-              "
+              onClick={() => handleMenuClick(item)}
+              className={`
+                relative px-3 py-2 text-sm font-medium transition-all duration-200 ease-out
+                ${
+                  isActive(item)
+                    ? "text-foreground"
+                    : "text-foreground/85 hover:text-foreground"
+                }
+              `}
             >
+              <span
+                className={`
+                  pointer-events-none absolute -bottom-1 left-3 right-3 h-[2px] origin-left
+                  transition-all duration-200
+                  ${
+                    isActive(item)
+                      ? "bg-[color:var(--color-accent)] scale-x-100"
+                      : "bg-[color:var(--color-accent)]/80 scale-x-0 group-hover:scale-x-100"
+                  }
+                `}
+                aria-hidden="true"
+              />
               {item.label}
-            </Link>
+            </button>
           ))}
         </nav>
 
-        {/* Sağ: CTA */}
+        {/* Sağ: CTA (Desktop) */}
         <Link
           to="/#iletisim"
-          className="
-            hidden md:inline-block
-            rounded-md px-3 py-2
-            text-sm text-black font-semibold
-            relative transition-[filter,opacity]
-            hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-accent)]/40
-          "
+          className="hidden md:inline-block rounded-md px-3 py-2 text-sm text-black font-semibold relative transition-[filter,opacity] hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-accent)]/40"
           style={{ backgroundImage: "var(--gradient-accent)" }}
+          onClick={(e) => {
+            e.preventDefault();
+            handleMenuClick({ to: "/#iletisim", kind: "hash" });
+          }}
         >
           İletişime Geçin
           <span
@@ -85,15 +156,76 @@ export default function Header() {
           />
         </Link>
 
-        {/* Mobil kısa CTA */}
-        <Link
-          to="/#iletisim"
-          className="md:hidden rounded-full px-2.5 py-1 text-xs font-semibold text-black"
-          style={{ backgroundImage: "var(--gradient-accent)" }}
+        {/* Mobil: sağda hamburger */}
+        <button
+          type="button"
+          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-border/60 bg-surface text-foreground/90"
+          aria-label="Menüyü aç"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
         >
-          İletişim
-        </Link>
+          {/* hamburger / close */}
+          <svg
+            viewBox="0 0 24 24"
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            {open ? (
+              <path d="M6 6l12 12M6 18L18 6" />
+            ) : (
+              <>
+                <path d="M4 6h16" />
+                <path d="M4 12h16" />
+                <path d="M4 18h16" />
+              </>
+            )}
+          </svg>
+        </button>
       </div>
+
+      {/* Mobil menü paneli */}
+      {open && (
+        <div className="md:hidden border-t border-border/60 bg-surface/95 backdrop-blur">
+          <nav
+            className="container-x py-2"
+            role="navigation"
+            aria-label="Mobil menü"
+          >
+            <ul className="flex flex-col py-1">
+              {menu.map((item) => (
+                <li key={item.label}>
+                  <button
+                    onClick={() => handleMenuClick(item)}
+                    className={`
+                      w-full text-left px-3 py-3 text-[15px] transition
+                      ${
+                        isActive(item)
+                          ? "text-foreground"
+                          : "text-foreground/85 hover:text-foreground"
+                      }
+                    `}
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+              <li className="px-3 pt-1">
+                <button
+                  onClick={() =>
+                    handleMenuClick({ to: "/#iletisim", kind: "hash" })
+                  }
+                  className="w-full rounded-md px-3 py-2 text-sm font-semibold text-black"
+                  style={{ backgroundImage: "var(--gradient-accent)" }}
+                >
+                  İletişime Geçin
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
