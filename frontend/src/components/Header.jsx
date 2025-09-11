@@ -109,44 +109,52 @@ export default function Header() {
           role="navigation"
           aria-label="Ana menü"
         >
-          {menu.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => handleMenuClick(item)}
-              className={`
-                relative px-3 py-2 text-sm font-medium transition-all duration-200 ease-out
-                ${
-                  isActive(item)
-                    ? "text-foreground"
-                    : "text-foreground/85 hover:text-foreground"
-                }
-              `}
-            >
-              <span
+          {menu.map((item) => {
+            const active = isActive(item);
+            return (
+              <button
+                key={item.label}
+                onClick={() => handleMenuClick(item)}
+                aria-current={active ? "page" : undefined}
                 className={`
-                  pointer-events-none absolute -bottom-1 left-3 right-3 h-[2px] origin-left
-                  transition-all duration-200
-                  ${
-                    isActive(item)
-                      ? "bg-[color:var(--color-accent)] scale-x-100"
-                      : "bg-[color:var(--color-accent)]/80 scale-x-0 group-hover:scale-x-100"
-                  }
-                `}
-                aria-hidden="true"
-              />
-              {item.label}
-            </button>
-          ))}
+          group relative px-3 py-2 text-sm font-medium transition-colors duration-200 ease-out
+          ${
+            active
+              ? "text-foreground"
+              : "text-foreground/85 hover:text-foreground"
+          }
+        `}
+              >
+                {item.label}
+
+                {/* Alt çizgi */}
+                <span
+                  aria-hidden="true"
+                  className={`
+            pointer-events-none absolute -bottom-1 left-3 right-3 h-[2px]
+            bg-[color:var(--color-accent)]
+            origin-left will-change-transform
+            transition-transform duration-200
+            ${
+              active
+                ? "scale-x-100"
+                : "scale-x-0 group-hover:scale-x-100 group-focus-visible:scale-x-100"
+            }
+          `}
+                />
+              </button>
+            );
+          })}
         </nav>
 
         {/* Sağ: CTA (Desktop) */}
         <Link
-          to="/#iletisim"
+          to="/#contact"
           className="hidden md:inline-block rounded-md px-3 py-2 text-sm text-black font-semibold relative transition-[filter,opacity] hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-accent)]/40"
           style={{ backgroundImage: "var(--gradient-accent)" }}
           onClick={(e) => {
             e.preventDefault();
-            handleMenuClick({ to: "/#iletisim", kind: "hash" });
+            handleMenuClick({ to: "/#contact", kind: "hash" });
           }}
         >
           İletişime Geçin
@@ -214,7 +222,7 @@ export default function Header() {
               <li className="px-3 pt-1">
                 <button
                   onClick={() =>
-                    handleMenuClick({ to: "/#iletisim", kind: "hash" })
+                    handleMenuClick({ to: "/#contact", kind: "hash" })
                   }
                   className="w-full rounded-md px-3 py-2 text-sm font-semibold text-black"
                   style={{ backgroundImage: "var(--gradient-accent)" }}
