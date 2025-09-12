@@ -65,6 +65,11 @@ export default function Services() {
       desc: "Şirket kuruluşu, birleşme & devralma, kurumsal yönetim ve uyum süreçleri.",
       icon: IconBuildingSkyscraper,
     },
+    {
+      title: "İcra Hukuku",
+      desc: "İlamsız para alacağı takibi, İlamlı icra yoluyla takip, Kambiyo senetlerine özgü takip, İtirazın iptali, Menfi tespit, Tasarrufun iptali.",
+      icon: IconGavel, // ⚖️ İcra ve hukuku temsil eden uygun ikon
+    },
   ];
 
   return (
@@ -89,7 +94,6 @@ export default function Services() {
 
         {/* Kartlar */}
         <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-
           {items.map(({ title, desc, icon: IconCmp }) => (
             <article
               key={title}
