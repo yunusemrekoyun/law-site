@@ -8,7 +8,7 @@ export default function Header() {
 
   const menu = useMemo(
     () => [
-      { label: "Çalışma Alanlarımız", to: "/#hizmetler", kind: "hash" },
+      { label: "Çalışma Alanlarımız", to: "/calisma-alanlarimiz", kind: "route" },
       { label: "Hakkımda", to: "/#hakkimda", kind: "hash" },
       { label: "Makaleler", to: "/makaleler", kind: "route" },
       { label: "Yargıtay Kararları", to: "/kararlar", kind: "route" },
