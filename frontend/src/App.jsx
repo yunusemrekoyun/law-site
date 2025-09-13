@@ -1,4 +1,3 @@
-// src/App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import ScrollToTop from "./components/ScrollToTop";
@@ -9,6 +8,7 @@ import ArticlePage from "./pages/ArticlePage";
 import ArticleDetail from "./pages/ArticleDetails";
 import DecisionPage from "./pages/DecisionPage";
 import DecisionDetail from "./pages/DecisionDetail";
+import ServicesPage from "./pages/ServicesPage"; // ✅ yeni sayfa
 
 // Admin pages
 import AdminLogin from "./admin/AdminLogin";
@@ -29,6 +29,16 @@ export default function App() {
           element={
             <Layout>
               <HomePage />
+            </Layout>
+          }
+        />
+
+        {/* Çalışma Alanlarımız */}
+        <Route
+          path="/calisma-alanlarimiz"
+          element={
+            <Layout>
+              <ServicesPage />
             </Layout>
           }
         />

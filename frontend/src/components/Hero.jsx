@@ -44,8 +44,8 @@ export default function Hero() {
 
             <p className="max-w-[62ch] text-lg md:text-xl leading-relaxed text-muted">
               Haklarınızı en üst düzeyde savunan, stratejik ve sonuç odaklı
-              yaklaşım. Ceza, Ticaret, İş ve Aile hukuku başta olmak üzere
-              kapsamlı temsil.
+              yaklaşım. Şirketler, Ceza, İcra, Gayrimenkul, İş ve Aile hukuku
+              başta olmak üzere kapsamlı temsil.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -68,11 +68,7 @@ export default function Hero() {
               </a>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-6 text-muted text-sm">
-              <span>• 10+ yıl deneyim</span>
-              <span>• Şeffaf ücretlendirme</span>
-              <span>• Gizlilik ve özen</span>
-            </div>
+        
           </div>
 
           {/* Sağ görsel */}
