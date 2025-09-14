@@ -20,6 +20,8 @@ function normalize(item) {
 
 export default function HomeArticleItem({ item }) {
   const a = normalize(item);
+  const placeholder = "/img/placeholder.png";
+  const imgSrc = a.image || placeholder;
 
   return (
     <article
@@ -33,27 +35,13 @@ export default function HomeArticleItem({ item }) {
     >
       <Link to={`/makaleler/${a.slug}`} className="block">
         <div className="relative aspect-[16/9] w-full">
-          {a.image ? (
-            <img
-              src={a.image}
-              alt={a.imageAlt}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover object-center transition-transform duration-500 ease-out hover:scale-[1.03]"
-            />
-          ) : (
-            <div className="h-full w-full">
-              <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] bg-[color:var(--color-surface)]" />
-              <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/35" />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(60% 60% at 70% 30%, rgba(228,189,99,.18) 0%, rgba(228,189,99,0) 70%)",
-                }}
-              />
-            </div>
-          )}
+          <img
+            src={imgSrc}
+            alt={a.imageAlt || a.title}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover object-center transition-transform duration-500 ease-out hover:scale-[1.03]"
+          />
 
           <div className="pointer-events-none absolute right-3 top-3">
             <time

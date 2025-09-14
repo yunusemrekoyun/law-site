@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 
 function normalize(d) {
-  // image yapısı Article’daki gibi {url, ...} gelebilir veya hiç gelmeyebilir
   const img =
     (d.image && (d.image.url || d.image.secure_url)) ||
     (typeof d.image === "string" ? d.image : "") ||
@@ -12,8 +11,8 @@ function normalize(d) {
     title: d.title || "Karar",
     slug: d.slug || "",
     date: d.date || d.publishedAt || "",
-    chamber: d.chamber || d.court || "", // Daire
-    caseNo: d.caseNo || d.esasNo || "", // Esas no
+    chamber: d.chamber || d.court || "",
+    caseNo: d.caseNo || d.esasNo || "",
     decisionNo: d.decisionNo || d.kararNo || "",
     summary: d.summary || "",
     tags: Array.isArray(d.tags) ? d.tags : [],
@@ -24,6 +23,8 @@ function normalize(d) {
 
 export default function HomeDecisionItem({ item }) {
   const d = normalize(item);
+  const placeholder = "/img/placeholder.png";
+  const imgSrc = d.image || placeholder;
 
   return (
     <article
@@ -40,7 +41,6 @@ export default function HomeDecisionItem({ item }) {
       {/* Üst şerit (Daire + Tarih) */}
       <div className="flex items-center justify-between border-b border-border/60 px-4 py-2 text-[12px] text-muted">
         <span className="inline-flex items-center gap-2">
-          {/* küçük tokmak ikonu */}
           <svg
             viewBox="0 0 24 24"
             className="h-4 w-4"
@@ -60,33 +60,17 @@ export default function HomeDecisionItem({ item }) {
 
       {/* Gövde */}
       <Link to={`/kararlar/${d.slug}`} className="block">
-        {d.image ? (
-          <div className="relative aspect-[16/9] w-full">
-            <img
-              src={d.image}
-              alt={d.imageAlt}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover object-center transition-transform duration-500 ease-out hover:scale-[1.03]"
-            />
-          </div>
-        ) : (
-          <div className="relative aspect-[16/9] w-full">
-            {/* hafif desen/ışıma — kararlar için farklı bir dokunuş */}
-            <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] bg-[color:var(--color-surface)]" />
-            <div className="absolute inset-0 rounded-t-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/30" />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(60% 60% at 30% 40%, rgba(228,189,99,.15) 0%, rgba(228,189,99,0) 70%)",
-              }}
-            />
-          </div>
-        )}
+        <div className="relative aspect-[16/9] w-full">
+          <img
+            src={imgSrc}
+            alt={d.imageAlt}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover object-center transition-transform duration-500 ease-out hover:scale-[1.03]"
+          />
+        </div>
 
         <div className="p-4">
-          {/* Esas / Karar bilgisi mini satır */}
           <div className="text-[12px] text-muted">
             {d.caseNo && <span>Esas: {d.caseNo}</span>}
             {d.caseNo && d.decisionNo && <span className="mx-2">•</span>}
