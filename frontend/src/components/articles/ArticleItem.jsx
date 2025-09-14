@@ -32,6 +32,10 @@ function normalize(item) {
 export default function ArticleItem({ item }) {
   const a = normalize(item);
 
+  // ✅ placeholder path
+  const placeholder = "/img/placeholder.png";
+  const imgSrc = a.image || placeholder;
+
   return (
     <article
       className="
@@ -43,21 +47,17 @@ export default function ArticleItem({ item }) {
       "
     >
       <Link to={`/makaleler/${a.slug}`} className="block">
-        {/* KAPAK: 16:9 sabit kutu, zoom/kırpma yok, ortalı (DecisionItem ile aynı) */}
+        {/* KAPAK: 16:9 sabit kutu */}
         <div className="relative aspect-[16/9] w-full bg-muted/10 flex items-center justify-center">
-          {a.image ? (
-            <img
-              src={a.image}
-              alt={a.imageAlt || a.title}
-              loading="lazy"
-              decoding="async"
-              className="max-h-full max-w-full object-contain"
-            />
-          ) : (
-            <div className="h-full w-full" />
-          )}
+          <img
+            src={imgSrc}
+            alt={a.imageAlt || a.title}
+            loading="lazy"
+            decoding="async"
+            className="max-h-full max-w-full object-contain"
+          />
 
-          {/* Tarih etiketi (opsiyonel overlay; boyutu küçük tutuyoruz) */}
+          {/* Tarih etiketi */}
           <div className="pointer-events-none absolute right-3 top-3">
             <time
               dateTime={a.date}
@@ -71,7 +71,7 @@ export default function ArticleItem({ item }) {
         </div>
       </Link>
 
-      {/* İÇ GÖVDE: DecisionItem ile ölçü eşleşmesi */}
+      {/* İÇ GÖVDE */}
       <div className="p-4">
         {a.tags.length > 0 && (
           <ul className="flex flex-wrap gap-2 text-[11px] md:text-xs text-muted">
@@ -99,9 +99,7 @@ export default function ArticleItem({ item }) {
         )}
 
         <div className="mt-3 flex justify-between items-center">
-          <span className="text-[11px] md:text-xs text-foreground/70">
-            {/* makale için ek meta istersen buraya gelebilir */}
-          </span>
+          <span className="text-[11px] md:text-xs text-foreground/70"></span>
           <Link
             to={`/makaleler/${a.slug}`}
             className="text-sm font-medium text-[color:var(--color-accent)] hover:underline"

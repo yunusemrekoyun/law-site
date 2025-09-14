@@ -4,24 +4,25 @@ import { useId, useState } from "react";
 const QA = [
   {
     q: "Ön görüşme nasıl gerçekleşiyor?",
-    a: "Ön görüşme telefon/online veya ofiste yapılabilir. Dosyanın temel bilgileri, hedefler ve beklentiler üzerinden hızlı bir ön değerlendirme paylaşır; ihtiyaç halinde evrak listesini iletiriz.",
+    a: "Kısa bir telefon/online görüşme ile dosya hakkında temel bilgileri alıyor, sonraki adımlar ve tahmini zaman planını paylaşıyoruz.",
   },
   {
     q: "Ücretlendirme nasıl belirleniyor?",
-    a: "Uyuşmazlığın konusu, kapsamı, iş yükü ve süresi gözetilerek, Avukatlık Asgari Ücret Tarifesi altına düşmeden şeffaf bir teklif sunulur. Ücretlendirme dilimlendirilmiş (aşamaya bağlı) veya sabit olabilir.",
+    a: "İşin kapsamı, süre ve risklerine göre şeffaf bir teklif sunuluyor; masraf kalemleri ayrıca belirtiliyor.",
   },
   {
     q: "Gizlilik nasıl korunuyor?",
-    a: "Meslek kuralları ve KVKK çerçevesinde tüm bilgileriniz gizli tutulur. Evrak paylaşımı güvenli kanallar üzerinden yapılır; yetkisiz erişime karşı teknik/idari önlemler uygulanır.",
+    a: "Meslek kuralları ve KVKK çerçevesinde tüm belgeler ve bilgiler gizlilikle saklanır, yalnızca zorunlu kişilerle paylaşılır.",
   },
   {
     q: "Dava dışı çözüm yöntemleri değerlendiriliyor mu?",
-    a: "Evet. Arabuluculuk, uzlaşma ve sulh seçeneklerini dosyanın niteliğine göre objektif biçimde değerlendirir; zaman ve maliyet açısından avantajlı ise önceliklendiririz.",
+    a: "Arabuluculuk ve uzlaşma seçeneklerini objektif biçimde değerlendiriyor, müvekkilin menfaatine uygun yolu öneriyoruz.",
   },
 ];
 
 export default function FAQ() {
-  const [open, setOpen] = useState(0); // ilk soru açık kalsın istiyorsan 0; kapalı başlasın istersen -1 yap
+  // 🔒 Hepsi kapalı başlar
+  const [open, setOpen] = useState(-1);
   const sectionId = useId();
 
   const toggle = (i) => setOpen((curr) => (curr === i ? -1 : i));
@@ -54,7 +55,7 @@ export default function FAQ() {
               const btnId = `${sectionId}-button-${i}`;
 
               return (
-                <li key={q} role="listitem" className="group">
+                <li key={q} role="listitem">
                   {/* Soru satırı */}
                   <button
                     id={btnId}
@@ -63,10 +64,10 @@ export default function FAQ() {
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     className={[
-                      "flex w-full items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left",
-                      // DÜZELTME: i===0 yerine isOpen — açık olan satır boyalı, ilk satır sabit yanık değil
-                      isOpen ? "bg-foreground/[0.05]" : "bg-transparent",
-                      "hover:bg-foreground/[0.045] transition-colors motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+                      "group flex w-full items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left",
+                      // 🎯 Yalnızca hover’da arka plan ver
+                      "hover:bg-foreground/[0.045] transition-colors motion-reduce:transition-none",
+                      "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
                     ].join(" ")}
                   >
                     <span className="text-[15.5px] sm:text-[16px] font-semibold text-foreground/95">
@@ -91,12 +92,12 @@ export default function FAQ() {
                     </svg>
                   </button>
 
-                  {/* Cevap paneli (animasyonlu aç/kapa) */}
+                  {/* Cevap paneli */}
                   <div
                     id={panelId}
                     role="region"
                     aria-labelledby={btnId}
-                    aria-hidden={!isOpen} // a11y: kapalıyken screen reader'a gizle
+                    aria-hidden={!isOpen}
                     className={[
                       "grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none",
                       isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",

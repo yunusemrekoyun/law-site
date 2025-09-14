@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { DecisionAPI } from "../lib/api";
+import { coerceToHtml } from "../lib/richText";
 
 // NOTE: Ayrı dosya olmadan görsel URL çözümleyici:
 function resolveUrl(url) {
@@ -109,10 +110,15 @@ export default function DecisionDetail() {
         <div
           className="
             prose prose-invert max-w-none
+            break-words 
+            prose-p:my-4 prose-li:my-1 prose-headings:mt-6
+            prose-a:text-[color:var(--color-accent)]
             prose-img:my-4 prose-img:rounded-xl prose-img:w-full prose-img:h-auto
             prose-img:max-h-[70vh] prose-img:object-contain
           "
-          dangerouslySetInnerHTML={{ __html: decision.content || "" }}
+          dangerouslySetInnerHTML={{
+            __html: coerceToHtml(decision.content || ""),
+          }}
         />
 
         {/* Alt aksiyon */}
