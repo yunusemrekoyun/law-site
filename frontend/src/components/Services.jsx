@@ -85,7 +85,7 @@ export default function Services() {
             id="services-title"
             className="text-[28px] sm:text-[30px] md:text-[34px] font-semibold tracking-[-0.01em]"
           >
-            Hizmet Alanları
+            Çalışma Alanlarımız
           </h2>
           <p className="mt-2 text-[15px] sm:text-[16px] md:text-[16.5px] text-foreground/80 max-w-[70ch]">
             İhtiyacınıza uygun, stratejik ve sonuç odaklı hukuki danışmanlık.

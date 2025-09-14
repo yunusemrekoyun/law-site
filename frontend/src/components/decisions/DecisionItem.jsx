@@ -1,4 +1,3 @@
-// src/components/decisions/DecisionItem.jsx
 import { Link } from "react-router-dom";
 
 // URL düzeltici (ayrı dosya yok)
@@ -17,22 +16,27 @@ export default function DecisionItem({ item }) {
 
   return (
     <article className="rounded-[var(--radius-2xl)] border border-border/60 bg-surface shadow hover:shadow-lg transition-shadow overflow-hidden">
-      {/* KART KAPAĞI — 16:9 + object-cover (liste ve detay birebir aynı görünüm) */}
-{coverSrc && (
-  <div className="aspect-[16/9] bg-muted/10 flex items-center justify-center overflow-hidden">
-    <img
-      src={coverSrc}
-      alt={item.title || "Karar görseli"}
-      loading="lazy"
-      decoding="async"
-      className="max-w-full max-h-full object-contain"
-    />
-  </div>
-)}
+      {/* KART KAPAĞI — TIKLANABİLİR (DETAYA GÖTÜRÜR) */}
+      {coverSrc && (
+        <Link
+          to={`/kararlar/${item.slug}`}
+          aria-label={(item?.title || "Karar") + " detayına git"}
+          className="block group"
+        >
+          <div className="aspect-[16/9] bg-muted/10 flex items-center justify-center overflow-hidden">
+            <img
+              src={coverSrc}
+              alt={item.title || "Karar görseli"}
+              loading="lazy"
+              decoding="async"
+              className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+            />
+          </div>
+        </Link>
+      )}
 
       <div className="p-4 md:p-4">{/* UPDATED: p-5 -> p-4 (daha kompakt) */}
         <div className="flex justify-between items-center text-[11px] md:text-xs text-muted mb-2">
-          {/* UPDATED: meta font biraz küçüldü */}
           <span>{item.daire}</span>
           <time dateTime={item.date}>
             {item.date ? new Date(item.date).toLocaleDateString("tr-TR") : ""}
@@ -40,17 +44,14 @@ export default function DecisionItem({ item }) {
         </div>
 
         <h3 className="text-base md:text-lg font-semibold mb-1.5">
-          {/* UPDATED: başlık bir kademe küçüldü */}
           {item.title}
         </h3>
 
         <p className="line-clamp-2 md:line-clamp-3 text-xs md:text-sm text-muted">
-          {/* UPDATED: varsayılan clamp 2 satır */}
           {item.summary}
         </p>
 
         <div className="mt-3 flex justify-between items-center">
-          {/* UPDATED: spacing azaltıldı */}
           <span className="text-[11px] md:text-xs text-foreground/70">
             Esas: {item.esasNo} • Karar: {item.kararNo}
           </span>
