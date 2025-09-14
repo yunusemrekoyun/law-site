@@ -8,6 +8,7 @@ import Contact from "../components/Contact";
 import ContactForm from "../components/ContactForm";
 import HomeArticles from "../components/HomeArticles";
 import HomeDecisions from "../components/HomeDecisions";
+import AboutMe from "../components/AboutMe";
 
 const HomePage = () => {
   return (
@@ -16,8 +17,11 @@ const HomePage = () => {
 
       {/* anchor hedefleri sticky header'a çarpmayınca dursun */}
       <main>
-        <div id="hakkimda" className="scroll-mt-20 md:scroll-mt-24">
+        <div id="hakkimizda" className="scroll-mt-20 md:scroll-mt-24">
           <Institutional />
+        </div>
+         <div id="hakkimda" className="scroll-mt-20 md:scroll-mt-24">
+          <AboutMe />
         </div>
 
         <div id="hizmetler" className="scroll-mt-20 md:scroll-mt-24">
