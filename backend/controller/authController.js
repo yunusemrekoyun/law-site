@@ -16,17 +16,13 @@ function signToken(user) {
 }
 
 function cookieOptions() {
-  // expires: JWT ömrü kadar cookie yaşatmak için maxAge kullanıyoruz
-  // EXPIRES_IN string (1h/30m/7d) → maxAge hesaplaması için basit varsayılan:
-  // 1h ise 3600s; 30m ise 1800s; 7d ise 604800s...
-  // Pratikte: front-end cookie süre yönetimi kritik değil; token expire olunca middleware reddedecek.
   const oneHourMs = 3600 * 1000;
   return {
     httpOnly: true,
-    secure: SECURE, // prod'da true (https şart)
-    sameSite: SAME_SITE, // "Lax" / "Strict" / "None"(Secure true olmalı)
+    secure: (process.env.AUTH_COOKIE_SECURE || "false") === "true",
+    sameSite: process.env.AUTH_COOKIE_SAME_SITE || "Lax",
     path: "/",
-    maxAge: oneHourMs, // basit default; dilersen EXPIRES_IN'i parse edip dinamikleştiririz
+    maxAge: oneHourMs,
   };
 }
 
@@ -98,7 +94,13 @@ export const authController = {
   },
 
   async logout(req, res) {
-    res.clearCookie(COOKIE_NAME, { path: "/" });
+    const opts = cookieOptions();
+    res.clearCookie(process.env.AUTH_COOKIE_NAME || "access_token", {
+      httpOnly: true,
+      secure: opts.secure,
+      sameSite: opts.sameSite,
+      path: opts.path,
+    });
     res.json({ ok: true });
   },
 };

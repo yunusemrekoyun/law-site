@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { DecisionAPI } from "../../lib/api";
+import { compressImageSmart } from "../../utils/compressImageSmart"; // <— YENİ
 
 // basit slugify
 function slugify(s) {
@@ -16,40 +17,6 @@ function slugify(s) {
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-}
-
-// client-side image compress
-async function compressImage(
-  file,
-  { maxW = 1600, maxH = 1600, quality = 0.82 } = {}
-) {
-  const img = await new Promise((res, rej) => {
-    const i = new Image();
-    i.onload = () => res(i);
-    i.onerror = rej;
-    i.src = URL.createObjectURL(file);
-  });
-
-  const ratio = Math.min(maxW / img.width, maxH / img.height, 1);
-  const w = Math.round(img.width * ratio);
-  const h = Math.round(img.height * ratio);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(img, 0, 0, w, h);
-
-  const blob = await new Promise((resolve) =>
-    canvas.toBlob((b) => resolve(b), "image/jpeg", quality)
-  );
-
-  URL.revokeObjectURL(img.src);
-  return new File(
-    [blob],
-    file.name.replace(/\.(png|jpg|jpeg|webp|gif)$/i, ".jpg"),
-    { type: blob.type || "image/jpeg" }
-  );
 }
 
 export default function AdminDecisionForm({ initial, onClose, onSaved }) {
@@ -135,10 +102,13 @@ export default function AdminDecisionForm({ initial, onClose, onSaved }) {
 
       let fileToSend = imageFile || undefined;
       if (imageFile) {
-        fileToSend = await compressImage(imageFile, {
+        // 5MB altını garantiye almak için 3 denemelik akıllı sıkıştırma
+        fileToSend = await compressImageSmart(imageFile, {
           maxW: 1600,
           maxH: 1600,
-          quality: 0.82,
+          initialQuality: 0.82,
+          maxAttempts: 3,
+          maxBytes: 4.8 * 1024 * 1024,
         });
       }
 
@@ -275,7 +245,7 @@ export default function AdminDecisionForm({ initial, onClose, onSaved }) {
               <Field label="Görsel">
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif" // <— HEIC/AVIF dışı
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                   className="block w-full text-[13px] file:mr-3 file:rounded-md file:border file:border-border/60 file:bg-surface file:px-3 file:py-1.5 file:text-[13px] file:text-foreground hover:file:bg-surface-2"
                 />
