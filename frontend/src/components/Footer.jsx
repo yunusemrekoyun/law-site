@@ -1,6 +1,15 @@
-// Footer.jsx
+// src/components/Footer.jsx
 import { IconPhone, IconMail, IconMapPin } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
+
 export default function Footer() {
+  const menu = [
+    { label: "Çalışma Alanlarımız", to: "/calisma-alanlarimiz", kind: "route" },
+    { label: "Makaleler", to: "/makaleler", kind: "route" },
+    { label: "Yargıtay Kararları", to: "/kararlar", kind: "route" },
+    { label: "İletişim", to: "/#iletisim", kind: "hash" },
+  ];
+
   return (
     <footer className="mt-16 border-t border-border/60 bg-surface">
       <div className="container-x">
@@ -9,7 +18,6 @@ export default function Footer() {
           {/* Sol blok: logo + açıklama */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              {/* Header ile tutarlı rozet */}
               <span className="relative grid h-7 w-7 place-items-center rounded-full bg-[color:var(--color-bg)] text-[11px] font-semibold">
                 <span className="pointer-events-none absolute inset-0 rounded-full ring-[1.5px] ring-[color:var(--color-accent)]/85"></span>
                 <span
@@ -19,16 +27,14 @@ export default function Footer() {
                     opacity: 0.18,
                   }}
                 ></span>
-                <span className="z-10 text-[color:var(--color-accent)]">
-                  SV
-                </span>
+                <span className="z-10 text-[color:var(--color-accent)]">SV</span>
               </span>
 
               <span className="leading-[1.05]">
                 <span className="block text-[var(--text-base)] font-semibold tracking-[-0.01em]">
                   Suphi Veysanoğlu
                 </span>
-                <span className="block  text-[color:var(--color-accent)]">
+                <span className="block text-[color:var(--color-accent)]">
                   Avukat
                 </span>
               </span>
@@ -42,30 +48,33 @@ export default function Footer() {
 
           {/* Orta blok: Bağlantılar */}
           <nav aria-label="Alt menü">
-            <div className="text-[var(--text-base)] font-semibold">
-              Bağlantılar
-            </div>
+            <div className="text-[var(--text-base)] font-semibold">Bağlantılar</div>
             <ul className="mt-3 space-y-1.5 text-[14.5px] text-foreground/90">
-              {["Çalışma Alanlarımız", "Hakkımda", "Makaleler", "İletişim"].map(
-                (item) => (
-                  <li key={item}>
-                    <a
-                      href="#"
+              {menu.map((item) => (
+                <li key={item.label}>
+                  {item.kind === "route" ? (
+                    <Link
+                      to={item.to}
                       className="transition-colors hover:text-foreground"
                     >
-                      {item}
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={item.to}
+                      className="transition-colors hover:text-foreground"
+                    >
+                      {item.label}
                     </a>
-                  </li>
-                )
-              )}
+                  )}
+                </li>
+              ))}
             </ul>
           </nav>
 
           {/* Sağ blok: İletişim */}
           <div>
-            <div className="text-[var(--text-base)] font-semibold">
-              İletişim
-            </div>
+            <div className="text-[var(--text-base)] font-semibold">İletişim</div>
             <ul className="mt-3 space-y-1.5 text-[14.5px] text-foreground/90">
               <li className="flex items-center gap-2">
                 <IconPhone className="h-4 w-4 text-accent" />
