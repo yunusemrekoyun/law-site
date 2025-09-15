@@ -8,7 +8,7 @@ import ArticlePage from "./pages/ArticlePage";
 import ArticleDetail from "./pages/ArticleDetails";
 import DecisionPage from "./pages/DecisionPage";
 import DecisionDetail from "./pages/DecisionDetail";
-import ServicesPage from "./pages/ServicesPage"; // ✅ yeni sayfa
+import ServicesPage from "./pages/ServicesPage";
 
 // Admin pages
 import AdminLogin from "./admin/AdminLogin";
@@ -78,8 +78,6 @@ export default function App() {
             </Layout>
           }
         />
-
-        {/* Admin (layout yok) */}
         <Route
           path="/admin"
           element={
