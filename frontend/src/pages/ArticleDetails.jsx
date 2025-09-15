@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { ArticleAPI } from "../lib/api";
+import { coerceToHtml } from "../lib/richText";
 
 // NOTE: Göreli URL -> tam URL
 function resolveUrl(url) {
@@ -133,8 +134,7 @@ export default function ArticleDetail() {
           </div>
         </header>
 
-        {/* Kapak görseli — kartla aynı görünüm (16:9, zoom yok, ortalı) */}
-        {/* Kapak görseli — %25 küçültülmüş */}
+        {/* Kapak görseli — %75 genişlikte, 16:9 kutuda, contain */}
         {img && (
           <div className="mb-6 flex justify-center">
             <div className="w-3/4 overflow-hidden rounded-[var(--radius-2xl)] ring-1 ring-[color:var(--color-accent)]/30 shadow-[var(--shadow-soft)]">
@@ -151,10 +151,17 @@ export default function ArticleDetail() {
           </div>
         )}
 
-        {/* İçerik gövdesi (HTML) */}
+        {/* İçerik gövdesi (HTML) — uzun metinler taşmasın */}
         <div
-          className="prose prose-invert max-w-none prose-p:my-4 prose-li:my-1 prose-headings:mt-6 prose-a:text-[color:var(--color-accent)]"
-          dangerouslySetInnerHTML={{ __html: article.content || "" }}
+          className="
+            prose prose-invert max-w-none
+            break-words 
+            prose-p:my-4 prose-li:my-1 prose-headings:mt-6
+            prose-a:text-[color:var(--color-accent)]
+          "
+          dangerouslySetInnerHTML={{
+            __html: coerceToHtml(article.content || ""),
+          }}
         />
 
         {/* Alt aksiyonlar */}

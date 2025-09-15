@@ -10,32 +10,35 @@ function resolveUrl(url) {
 }
 
 export default function DecisionItem({ item }) {
-  const coverSrc = resolveUrl(
-    item?.image?.url || item?.image || item?.imageUrl || item?.cover
-  );
+  const coverSrc =
+    resolveUrl(
+      item?.image?.url || item?.image || item?.imageUrl || item?.cover
+    ) || null;
+
+  // ✅ placeholder
+  const placeholder = "/img/placeholder.png";
+  const imgSrc = coverSrc || placeholder;
 
   return (
     <article className="rounded-[var(--radius-2xl)] border border-border/60 bg-surface shadow hover:shadow-lg transition-shadow overflow-hidden">
       {/* KART KAPAĞI — TIKLANABİLİR (DETAYA GÖTÜRÜR) */}
-      {coverSrc && (
-        <Link
-          to={`/kararlar/${item.slug}`}
-          aria-label={(item?.title || "Karar") + " detayına git"}
-          className="block group"
-        >
-          <div className="aspect-[16/9] bg-muted/10 flex items-center justify-center overflow-hidden">
-            <img
-              src={coverSrc}
-              alt={item.title || "Karar görseli"}
-              loading="lazy"
-              decoding="async"
-              className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-            />
-          </div>
-        </Link>
-      )}
+      <Link
+        to={`/kararlar/${item.slug}`}
+        aria-label={(item?.title || "Karar") + " detayına git"}
+        className="block group"
+      >
+        <div className="aspect-[16/9] bg-muted/10 flex items-center justify-center overflow-hidden">
+          <img
+            src={imgSrc}
+            alt={item.title || "Karar görseli"}
+            loading="lazy"
+            decoding="async"
+            className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+          />
+        </div>
+      </Link>
 
-      <div className="p-4 md:p-4">{/* UPDATED: p-5 -> p-4 (daha kompakt) */}
+      <div className="p-4 md:p-4">
         <div className="flex justify-between items-center text-[11px] md:text-xs text-muted mb-2">
           <span>{item.daire}</span>
           <time dateTime={item.date}>
