@@ -1,7 +1,7 @@
 // src/components/ContactForm.jsx
 import { useState } from "react";
 import { IconMail } from "@tabler/icons-react";
-import { ContactAPI } from "../lib/api";
+import emailjs from "@emailjs/browser";
 
 export default function ContactForm() {
   const [busy, setBusy] = useState(false);
@@ -13,9 +13,7 @@ export default function ContactForm() {
     setErr("");
     setOk(false);
 
-    // 🟢 ÖNEMLİ: form referansını await'ten önce al
     const formEl = e.currentTarget;
-
     const fd = new FormData(formEl);
     if (fd.get("company")) return; // honeypot
 
@@ -36,10 +34,25 @@ export default function ContactForm() {
 
     try {
       setBusy(true);
-      await ContactAPI.send({ name, email, phone, subject, message });
+
+      // EmailJS: input isimlerini değiştirmeden template parametrelerine map’liyoruz
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        {
+          from_name: name,
+          from_email: email,
+          phone,
+          subject,
+          message,
+        },
+        { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
+      );
+
       setOk(true);
-      formEl.reset(); // ✅ Artık null değil
+      formEl.reset();
     } catch (errObj) {
+      console.error("EmailJS error:", errObj);
       setErr(
         errObj?.message ||
           "Gönderim sırasında bir sorun oluştu. Lütfen tekrar deneyin."

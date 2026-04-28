@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
 // frontend/src/lib/api.js
 
-const BASE = import.meta.env.VITE_API ?? "http://localhost:5000/api";
+const BASE = import.meta.env.VITE_API_BASE_URL;
 
 // 401 yayınlamak için basit event bus
 export const apiEvents = new EventTarget();

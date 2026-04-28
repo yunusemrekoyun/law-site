@@ -29,10 +29,10 @@ export default function ContactSection() {
 
           <InfoCard label="E-posta">
             <a
-              href="mailto:av.suphiveysanoglu@hotmail.com"
+              href="mailto:avsuphiveysanoglu@hotmail.com"
               className="text-[16px] sm:text-[17px] font-semibold text-foreground/95 break-words hyphens-auto focus:outline-none focus:ring-2 focus:ring-accent/40 rounded-md"
             >
-              av.suphiveysanoglu@hotmail.com
+              avsuphiveysanoglu@hotmail.com
             </a>
           </InfoCard>
 
@@ -81,7 +81,7 @@ export default function ContactSection() {
           </a>
 
           <a
-            href="mailto:av.suphiveysanoglu@hotmail.com"
+            href="mailto:avsuphiveysanoglu@hotmail.com"
             className="inline-flex items-center gap-2 rounded-[var(--radius-lg)] border border-border/70 bg-[color:var(--color-surface-2)]/60 px-5 py-3 text-[14.5px] sm:text-[15px] font-medium text-foreground shadow-[var(--shadow-soft)] transition-colors hover:bg-white/[0.06] focus:outline-none focus:ring-2 focus:ring-accent/30"
           >
             <IconMail className="h-[18px] w-[18px] text-foreground/85" />

@@ -130,10 +130,10 @@ export default function Footer() {
               <li className="flex items-center gap-2">
                 <IconMail className="h-4 w-4 text-accent" />
                 <a
-                  href="mailto:av.suphiveysanoglu@hotmail.com"
+                  href="mailto:avsuphiveysanoglu@hotmail.com"
                   className="hover:underline underline-offset-4 break-all"
                 >
-                  av.suphiveysanoglu@hotmail.com
+                  avsuphiveysanoglu@hotmail.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
